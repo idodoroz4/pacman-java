@@ -79,6 +79,27 @@ public class Pacman extends FigureObject {
 		}
 	}
 
+	public void moveRandomly() {
+
+		if ((isStep() && getDirection() == Movement.NONE) || isIntersection()) {
 
 
+			int rnd = (int) (Math.random() * 4 + 1);
+			switch (rnd) {
+				case 1:
+					setDirection(Movement.UP);
+					break;
+				case 2:
+					setDirection(Movement.DOWN);
+					break;
+				case 3:
+					setDirection(Movement.LEFT);
+					break;
+				case 4:
+					setDirection(Movement.RIGHT);
+					break;
+			}
+		}
+		super.move();
+	}
 }

@@ -29,13 +29,17 @@ public class Controller implements Runnable {
 	private int _points;
 	private int _foodRemaining;
 
+	private int _difficulty; // 0 - easy , 1 - hard
+	private boolean _isPacmanAI;
+
 	public Controller() {
 
 		_window = new AppWindow();
 		_window.showView(_gameView);
 		_window.setWindowInScreenCenter();
-		_gameView.addKeyListener(new MovePacmanListener());
+
 		_gameView.setFocusable(true);
+		_isPacmanAI = false; // change base on player's choice
 
 
 
@@ -57,31 +61,33 @@ public class Controller implements Runnable {
 	public void startNewGame() {
 
 		_gameTimer.stop();
-
-
-
 		_remainingLives = PACMAN_LIVES;
 		_map = Map.getMap();
 		_foodRemaining = _map.getTotalFood();
 		_gameView.newGame(_map);
 
+		_difficulty = 0; // change difficulty
+		int num_of_ghosts = 4;
+		if (!_isPacmanAI){
+			_gameView.addKeyListener(new MovePacmanListener());
+		}
 
 
+
+		if (_difficulty == 0)
+			num_of_ghosts = 2;
 		if (_ghosts.size() == 0) {
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < num_of_ghosts; i++) {
 
 				RegularGhost w = new RegularGhost(_map, i+1);
-				if (i == 2 )
+				if (i == 0 )
 					w.setSpeed(2);
-				if (i == 3 )
+				if (i == 1 )
 					w.setSpeed(4);
 
 
 				_ghosts.add(w);
 			}
-
-
-
 			_gameView.setMonsters(_ghosts);
 		} else {
 			for (Ghost m : _ghosts) {
@@ -99,7 +105,10 @@ public class Controller implements Runnable {
 		for (Ghost m : _ghosts) {
 
 			m.setPosition(_map.getMonsterInitialPosition().x, _map.getMonsterInitialPosition().y);
+			m.setCageTime();
 		}
+		if (_isPacmanAI)
+			_pacman.setSpeed(3);
 
 
 		_gameTimer.start();
@@ -108,7 +117,12 @@ public class Controller implements Runnable {
 
 	public void gameUpdate() {
 
-		_pacman.move();
+		if (_isPacmanAI) {
+
+			_pacman.moveRandomly();
+		}
+		else
+			_pacman.move();
 
 
 		for (Ghost m : _ghosts){

@@ -17,7 +17,7 @@ public class GhostGate extends MappedObjects {
 
 	@Override
 	public boolean isTouching(FigureObject object) {
-		if (object instanceof Ghost) {
+		if (object instanceof Ghost && (((Ghost) object).isCageOpen())) {
 			return true;
 		}
 		else

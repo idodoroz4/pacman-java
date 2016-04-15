@@ -11,11 +11,15 @@ public abstract class Ghost extends FigureObject {
 	private static final long serialVersionUID = 1991L;
 	BufferedImage _image;
 	private int _color;
+	private int _intervalTime;
+	private long _cageTime;
 
 	public Ghost(Map map, int color) {
 		super(map);
 		_color = color;
 		setFPS(5);
+		_intervalTime = 5000; // 5 seconds
+
 		startGhost();
 	}
 
@@ -31,11 +35,9 @@ public abstract class Ghost extends FigureObject {
 		setPosition(getCollisionMap().getMonsterInitialPosition().x, getCollisionMap().getMonsterInitialPosition().y);
 
 		setDirection(Movement.RIGHT);
+		setCageTime();
+
 	}
-
-
-
-
 
 	@Override
 	public void move() {
@@ -64,5 +66,15 @@ public abstract class Ghost extends FigureObject {
 		}
 
 		super.move();
+	}
+
+	public void setCageTime (){
+		_cageTime = System.currentTimeMillis() + _intervalTime;
+	}
+
+	public boolean isCageOpen (){
+		if (System.currentTimeMillis() > _cageTime)
+				return true;
+		return false;
 	}
 }
