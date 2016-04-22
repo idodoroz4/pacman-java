@@ -13,6 +13,7 @@ import models.*;
 import models.Food;
 import views.AppWindow;
 import views.GameView;
+import views.LoginView;
 
 public class Controller implements Runnable {
 
@@ -22,7 +23,9 @@ public class Controller implements Runnable {
 	private static final int FPS = 60;
 	private Map _map = Map.getMap();
 	private AppWindow _window;
+    private AppWindow _loginWindow;
 	private GameView _gameView = new GameView(_map);
+    private LoginView _loginView;
 	private Pacman _pacman;
 	private int _remainingLives;
 	private List<Ghost> _ghosts = new ArrayList<Ghost>();
@@ -33,31 +36,39 @@ public class Controller implements Runnable {
 	private boolean _isPacmanAI;
 
 	public Controller() {
-
-		_window = new AppWindow();
-		_window.showView(_gameView);
-		_window.setWindowInScreenCenter();
-
-		_gameView.setFocusable(true);
-		_isPacmanAI = false; // change base on player's choice
+        startLoginWindow();
 
 
 
 
-		_gameTimer = new Timer(1000 / FPS, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				gameUpdate();
-			}
-		});
 
-
-
-		startNewGame();
-		restartGame();
 	}
 
+    private void startLoginWindow (){
+        _loginView = new LoginView();
 
+
+
+
+        if (1 == 2){
+            _window = new AppWindow();
+            _window.showView(_gameView);
+            _window.setWindowInScreenCenter();
+
+            _gameView.setFocusable(true);
+            _isPacmanAI = false; // change base on player's choice
+
+            _gameTimer = new Timer(1000 / FPS, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gameUpdate();
+                }
+            });
+
+            startNewGame();
+            restartGame();
+        }
+    }
 	public void startNewGame() {
 
 		_gameTimer.stop();
@@ -68,9 +79,10 @@ public class Controller implements Runnable {
 
 		_difficulty = 0; // change difficulty
 		int num_of_ghosts = 4;
-		if (!_isPacmanAI){
+		if (!_isPacmanAI)
 			_gameView.addKeyListener(new MovePacmanListener());
-		}
+        else
+            _difficulty = 1;
 
 
 
@@ -177,7 +189,8 @@ public class Controller implements Runnable {
 
 	@Override
 	public void run() {
-		_window.setVisible(true);
+        if (_window != null)
+		    _window.setVisible(true);
 	}
 
 	class MovePacmanListener extends KeyAdapter {
