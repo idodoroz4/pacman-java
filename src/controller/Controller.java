@@ -31,16 +31,14 @@ public class Controller implements Runnable {
 	private List<Ghost> _ghosts = new ArrayList<Ghost>();
 	private int _points;
 	private int _foodRemaining;
+	private String _userEmail;
 
 	private int _difficulty; // 0 - easy , 1 - hard
 	private boolean _isPacmanAI;
 
 	public Controller() {
         startLoginWindow();
-
-
-
-
+		_isPacmanAI = false;
 
 	}
 
@@ -48,26 +46,38 @@ public class Controller implements Runnable {
         _loginView = new LoginView();
 
 
-
-
-        if (1 == 2){
-            _window = new AppWindow();
-            _window.showView(_gameView);
-            _window.setWindowInScreenCenter();
-
-            _gameView.setFocusable(true);
-            _isPacmanAI = false; // change base on player's choice
-
-            _gameTimer = new Timer(1000 / FPS, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    gameUpdate();
-                }
-            });
-
-            startNewGame();
-            restartGame();
+       while (!_loginView._startGame){
+            try {
+                Thread.sleep(1000);                 //1000 milliseconds is one second.
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
         }
+        if (_loginView._isDemo) {
+
+            _isPacmanAI = true;
+        }
+        else {
+            _userEmail = _loginView._email;
+            _difficulty = _loginView._difficultyChosen;
+        }
+        _window = new AppWindow();
+        _window.showView(_gameView);
+        _window.setWindowInScreenCenter();
+
+        _gameView.setFocusable(true);
+
+
+        _gameTimer = new Timer(1000 / FPS, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameUpdate();
+            }
+        });
+
+        startNewGame();
+        restartGame();
+
     }
 	public void startNewGame() {
 
@@ -77,7 +87,7 @@ public class Controller implements Runnable {
 		_foodRemaining = _map.getTotalFood();
 		_gameView.newGame(_map);
 
-		_difficulty = 0; // change difficulty
+
 		int num_of_ghosts = 4;
 		if (!_isPacmanAI)
 			_gameView.addKeyListener(new MovePacmanListener());
@@ -119,9 +129,10 @@ public class Controller implements Runnable {
 			m.setPosition(_map.getMonsterInitialPosition().x, _map.getMonsterInitialPosition().y);
 			m.setCageTime();
 		}
-		if (_isPacmanAI)
-			_pacman.setSpeed(3);
-
+		if (_loginView._isDemo) {
+            _pacman.setSpeed(3);
+            _pacman.setDirection(Movement.RIGHT);
+        }
 
 		_gameTimer.start();
 	}
@@ -129,8 +140,7 @@ public class Controller implements Runnable {
 
 	public void gameUpdate() {
 
-		if (_isPacmanAI) {
-
+		if (_loginView._isDemo) {
 			_pacman.moveRandomly();
 		}
 		else
