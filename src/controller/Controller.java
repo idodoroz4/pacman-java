@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,22 @@ public class Controller implements Runnable {
 	private int _difficulty; // 0 - easy , 1 - hard
 	private boolean _isPacmanAI;
 
+    private long _firstDeathTime;
+    private long _firstDeathTimeStart;
+    private long _firstDeathTimeEnd;
+
+    private long _completeDeathTime;
+    private long _completeDeathTimeStart;
+    private long _completeDeathTimeEnd;
+
+    private Database db;
+
 	public Controller() {
+
+        db = new Database();
+
+
+
         startLoginWindow();
 		_isPacmanAI = false;
 
@@ -116,7 +132,21 @@ public class Controller implements Runnable {
 				m.startGhost();
 			}
 		}
+        if (_remainingLives == PACMAN_LIVES && !_isPacmanAI) {
+            _firstDeathTimeStart = System.currentTimeMillis();
+            _completeDeathTimeStart = System.currentTimeMillis();
+        }
 	}
+
+    public int getScore (){
+        return (_remainingLives + 1) * 20 + (_map.getTotalFood() - _foodRemaining);
+    }
+    public long get_firstDeathTime(){
+        return _firstDeathTime;
+    }
+    public long get_completeDeathTime(){
+        return _completeDeathTime;
+    }
 
 	public void restartGame() {
 
@@ -152,14 +182,23 @@ public class Controller implements Runnable {
 
 
 			if (_pacman.getBounds().intersects(m.getBounds())) {
-
+                if (_remainingLives == PACMAN_LIVES && !_isPacmanAI) {
+                    _firstDeathTimeEnd = System.currentTimeMillis();
+                    _firstDeathTime = (_firstDeathTimeEnd - _firstDeathTimeStart) / 1000;
+                }
 				_gameTimer.stop();
 				_remainingLives--;
 
+
 				try {
 					Thread.sleep(2000);
-					if (_remainingLives < 0) {
-
+					if (_remainingLives < 0) { // pacman die
+                        if (!_isPacmanAI) {
+                            _completeDeathTimeEnd = System.currentTimeMillis();
+                            _completeDeathTime = (_completeDeathTimeEnd - _completeDeathTimeStart) / 1000;
+                            db.sendEndOfGameStatistics(_userEmail,getScore(),(int)_firstDeathTime,(int)_completeDeathTime);
+                        }
+                        System.out.println(getScore());
 						startNewGame();
 					}
 
@@ -182,8 +221,12 @@ public class Controller implements Runnable {
 
 
 		if (_foodRemaining == 0) {
-
+            if (!_isPacmanAI) {
+                System.out.println(getScore());
+                _completeDeathTime = -1; // pacman didn't die
+            }
 			_gameTimer.stop();
+
 			startNewGame();
 			restartGame();
 		}
@@ -226,4 +269,12 @@ public class Controller implements Runnable {
 
 		}
 	}
+
+    public void sendAuthenticationData (String user,String password) {
+        db.sendAuthenticationData(user,password);
+    }
+
+    public void sendEndOfGameStatistics(String user, int score, int timeOfFirstDeath, int timeOfGame) {
+        db.sendEndOfGameStatistics(user,score,timeOfFirstDeath,timeOfGame);
+    }
 }
