@@ -1,7 +1,5 @@
 package views;
 
-import sun.util.resources.fi.CalendarData_fi;
-
 import javax.swing.JButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
@@ -16,32 +14,29 @@ import java.awt.event.ActionEvent;
 import java.awt.Desktop;
 import java.net.URI;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
-import java.rmi.server.ExportException;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
 
-import models.Database;
+import models.API;
 
 public class LoginView extends JPanel{
     private Font _font1;
     private Font _font2;
     public String _email;
+    public String _pass;
     public int _difficultyChosen;
     public boolean _isDemo;
     public boolean _startGame;
     private JFrame frame;
-    private Database db;
+    private API db;
     private Desktop dsktp;
 
 
     public LoginView() {
         _startGame = false;
         _isDemo = false;
-        db = new Database();
+        db = new API();
         _font1 = new Font("Ariel", Font.PLAIN, 20);
         _font2 = new Font("Ariel", Font.PLAIN, 25);
         frame = new JFrame("Pacman Game - Login");
@@ -102,10 +97,10 @@ public class LoginView extends JPanel{
                 System.out.println("login!");
                 _email = userText.getText();
                 _difficultyChosen = getSelectedButtonText(_difficulty);
-                String pass = passwordText.getPassword().toString();
-                int answer = db.sendAuthenticationData(_email,pass);
+                _pass = passwordText.getPassword().toString();
+                boolean answer = db.sendAuthenticationData(_email,_pass);
 
-                if (_email.equals("backdoor") || answer == 0){ // check user and password
+                if (_email.equals("backdoor") || answer){ // check user and password
                     //frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
                     frame.setVisible(false);
                     _startGame = true;
@@ -202,7 +197,7 @@ public class LoginView extends JPanel{
         demoButton.setBounds(_xSpcae + 100, 320, 180, 25);
         panel.add(demoButton);
 
-        JButton leatherBoards = new JButton("LeatherBoards");
+        JButton leatherBoards = new JButton("Score Board");
         leatherBoards.addActionListener(LeatherBoardsListener);
         leatherBoards.setFont(_font1);
         leatherBoards.setBounds(_xSpcae + 100, 360, 180, 25);

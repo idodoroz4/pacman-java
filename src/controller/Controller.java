@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +32,7 @@ public class Controller implements Runnable {
 	private int _points;
 	private int _foodRemaining;
 	private String _userEmail;
+	private byte[] _userPass;
 
 	private int _difficulty; // 0 - easy , 1 - hard
 	private boolean _isPacmanAI;
@@ -45,13 +45,13 @@ public class Controller implements Runnable {
     private long _completeDeathTimeStart;
     private long _completeDeathTimeEnd;
 
-    private Database db;
+    private API db;
+    private Encryption enc;
 
 	public Controller() {
 
-        db = new Database();
-
-
+        db = new API();
+        enc = new Encryption();
 
         startLoginWindow();
 		_isPacmanAI = false;
@@ -75,6 +75,7 @@ public class Controller implements Runnable {
         }
         else {
             _userEmail = _loginView._email;
+			_userPass = enc.encrypt(_loginView._pass);
             _difficulty = _loginView._difficultyChosen;
         }
         _window = new AppWindow();
@@ -196,8 +197,11 @@ public class Controller implements Runnable {
                         if (!_isPacmanAI) {
                             _completeDeathTimeEnd = System.currentTimeMillis();
                             _completeDeathTime = (_completeDeathTimeEnd - _completeDeathTimeStart) / 1000;
-                            db.sendEndOfGameStatistics(_userEmail,getScore(),(int)_firstDeathTime,(int)_completeDeathTime);
+                            db.sendEndOfGameStatistics(_userEmail,enc.decrypt(_userPass),getScore(),(int)_firstDeathTime,(int)_completeDeathTime);
                         }
+						else {
+							db.sendEndOfGameStatistics("computer@computer.computer","retupmoc",0,0,0);
+						}
                         System.out.println(getScore());
 						startNewGame();
 					}
@@ -274,7 +278,7 @@ public class Controller implements Runnable {
         db.sendAuthenticationData(user,password);
     }
 
-    public void sendEndOfGameStatistics(String user, int score, int timeOfFirstDeath, int timeOfGame) {
-        db.sendEndOfGameStatistics(user,score,timeOfFirstDeath,timeOfGame);
+    public boolean sendEndOfGameStatistics(String user,String password ,int score, int timeOfFirstDeath, int timeOfGame) {
+        return db.sendEndOfGameStatistics(user,password,score,timeOfFirstDeath,timeOfGame);
     }
 }

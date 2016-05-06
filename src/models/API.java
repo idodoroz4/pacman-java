@@ -8,7 +8,8 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class Database {
+public class API {
+    private String _URL = "http://jsonplaceholder.typicode.com/posts";
 
     private final String USER_AGENT = "Mozilla/5.0";
 
@@ -46,16 +47,18 @@ public class Database {
     }
 
     // HTTP POST request
-    private void sendPost(String params) throws Exception {
+    private int sendPost(String params) throws Exception {
 
-        String url = "http://www.google.com";
-        URL obj = new URL(url);
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+        //String url = "http://www.google.com";
+        URL obj = new URL(_URL);
+
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
         //add reuqest header
         con.setRequestMethod("POST");
         con.setRequestProperty("User-Agent", USER_AGENT);
         con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+        con.setRequestProperty("Accept", "application/json");
 
         String urlParameters = params;
 
@@ -67,9 +70,9 @@ public class Database {
         wr.close();
 
         int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url);
+        /*System.out.println("\nSending 'POST' request to URL : " + url);
         System.out.println("Post parameters : " + urlParameters);
-        System.out.println("Response Code : " + responseCode);
+        System.out.println("Response Code : " + responseCode);*/
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
@@ -82,26 +85,42 @@ public class Database {
         in.close();
 
         //print result
-        System.out.println(response.toString());
+        System.out.println(responseCode);
+        return responseCode;
 
     }
-    public int sendAuthenticationData (String user,String password){
+    public boolean sendAuthenticationData (String user,String password){
+        int responseCode = 0;
         try {
-            sendPost("user=" + user + "&password=" + password);
+            responseCode = sendPost(
+                            "user[name]=" + user +
+                            "&user[password]=" + password
+            );
         }
         catch (Exception e1){
-            return -1;
+            return false;
         }
-        return 0;
+        if (responseCode == 200)
+            return true;
+        return false;
     }
-    public int sendEndOfGameStatistics(String user, int score, int timeOfFirstDeath, int timeOfGame)  {
+    public boolean sendEndOfGameStatistics(String user, String password, int score, int timeOfFirstDeath, int timeOfGame)  {
+        int responseCode = 0;
         try {
-            sendPost("user=" + user + "&score=" + score + "&timeOfFirstDeath=" + timeOfFirstDeath + "&timeOfGame=" + timeOfGame);
+            responseCode =sendPost(
+                    "user[name]=" + user +
+                    "&user[password]=" + password +
+                    "&statistics[score]=" + score +
+                    "&statistics[max_time_heart]=" + timeOfFirstDeath +
+                    "&statistics[max_time_die]=" + timeOfGame
+            );
         }
         catch (Exception e1){
-            return -1;
+            return false;
         }
-        return 0;
+        if (responseCode == 200)
+            return true;
+        return false;
     }
     public void test() {
 
