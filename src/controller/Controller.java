@@ -70,7 +70,8 @@ public class Controller implements Runnable {
             }
         }
         if (_loginView._isDemo) {
-
+			_userEmail = "comp@comp.comp";
+			_userPass = enc.encrypt("12345678");
             _isPacmanAI = true;
         }
         else {
@@ -103,6 +104,7 @@ public class Controller implements Runnable {
 		_map = Map.getMap();
 		_foodRemaining = _map.getTotalFood();
 		_gameView.newGame(_map);
+		_firstDeathTime = 0;
 
 
 		int num_of_ghosts = 4;
@@ -133,7 +135,7 @@ public class Controller implements Runnable {
 				m.startGhost();
 			}
 		}
-        if (_remainingLives == PACMAN_LIVES && !_isPacmanAI) {
+        if (_remainingLives == PACMAN_LIVES) {
             _firstDeathTimeStart = System.currentTimeMillis();
             _completeDeathTimeStart = System.currentTimeMillis();
         }
@@ -183,7 +185,7 @@ public class Controller implements Runnable {
 
 
 			if (_pacman.getBounds().intersects(m.getBounds())) {
-                if (_remainingLives == PACMAN_LIVES && !_isPacmanAI) {
+                if (_remainingLives == PACMAN_LIVES) {
                     _firstDeathTimeEnd = System.currentTimeMillis();
                     _firstDeathTime = (_firstDeathTimeEnd - _firstDeathTimeStart) / 1000;
                 }
@@ -194,15 +196,16 @@ public class Controller implements Runnable {
 				try {
 					Thread.sleep(2000);
 					if (_remainingLives < 0) { // pacman die
+
                         if (!_isPacmanAI) {
                             _completeDeathTimeEnd = System.currentTimeMillis();
                             _completeDeathTime = (_completeDeathTimeEnd - _completeDeathTimeStart) / 1000;
                             db.sendEndOfGameStatistics(_userEmail,enc.decrypt(_userPass),getScore(),(int)_firstDeathTime,(int)_completeDeathTime);
                         }
 						else {
-							db.sendEndOfGameStatistics("computer@computer.computer","retupmoc",0,0,0);
+							db.sendEndOfGameStatistics("comp@comp.comp","12345678",getScore(),0,0);
 						}
-                        System.out.println(getScore());
+
 						startNewGame();
 					}
 
@@ -226,9 +229,13 @@ public class Controller implements Runnable {
 
 		if (_foodRemaining == 0) {
             if (!_isPacmanAI) {
-                System.out.println(getScore());
+
                 _completeDeathTime = -1; // pacman didn't die
+				db.sendEndOfGameStatistics(_userEmail,enc.decrypt(_userPass),getScore(),(int)_firstDeathTime,(int)_completeDeathTime);
             }
+			else{
+				db.sendEndOfGameStatistics("comp@comp.comp","12345678",getScore(),0,0);
+			}
 			_gameTimer.stop();
 
 			startNewGame();
@@ -274,11 +281,11 @@ public class Controller implements Runnable {
 		}
 	}
 
-    public void sendAuthenticationData (String user,String password) {
+    /*public void sendAuthenticationData (String user,String password) {
         db.sendAuthenticationData(user,password);
     }
 
-    public boolean sendEndOfGameStatistics(String user,String password ,int score, int timeOfFirstDeath, int timeOfGame) {
+    /*public boolean sendEndOfGameStatistics(String user,String password ,int score, int timeOfFirstDeath, int timeOfGame) {
         return db.sendEndOfGameStatistics(user,password,score,timeOfFirstDeath,timeOfGame);
-    }
+    }*/
 }

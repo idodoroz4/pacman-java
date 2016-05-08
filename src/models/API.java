@@ -9,12 +9,13 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 public class API {
-    private String _URL = "http://jsonplaceholder.typicode.com/posts";
+    private String _URL_AUTH = "http://guarded-basin-88343.herokuapp.com/user/auth";
+    private String _URL_STAT = "http://guarded-basin-88343.herokuapp.com/statistics";
 
     private final String USER_AGENT = "Mozilla/5.0";
 
     // HTTP GET request
-    private void sendGet() throws Exception {
+    private int sendGet() throws Exception {
 
         String url = "http://www.google.com";
 
@@ -28,8 +29,6 @@ public class API {
         con.setRequestProperty("User-Agent", USER_AGENT);
 
         int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
@@ -42,64 +41,58 @@ public class API {
         in.close();
 
         //print result
-        System.out.println(response.toString());
+
+
+        return responseCode;
 
     }
 
     // HTTP POST request
-    private int sendPost(String params) throws Exception {
+    private int sendPost(String params,String _url) throws Exception {
 
         //String url = "http://www.google.com";
-        URL obj = new URL(_URL);
+        URL obj = new URL(_url);
 
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
         //add reuqest header
         con.setRequestMethod("POST");
-        con.setRequestProperty("User-Agent", USER_AGENT);
-        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+        con.setRequestProperty("Cache-Control", "no-cache");
+        con.setRequestProperty("Connection", " ");
         con.setRequestProperty("Accept", "application/json");
+        con.setRequestProperty("Content-Type", "multipart/form-data");
 
-        String urlParameters = params;
 
         // Send post request
         con.setDoOutput(true);
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(urlParameters);
+
+        wr.writeBytes(params);
         wr.flush();
         wr.close();
 
         int responseCode = con.getResponseCode();
-        /*System.out.println("\nSending 'POST' request to URL : " + url);
-        System.out.println("Post parameters : " + urlParameters);
-        System.out.println("Response Code : " + responseCode);*/
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
 
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        //print result
-        System.out.println(responseCode);
         return responseCode;
 
     }
     public boolean sendAuthenticationData (String user,String password){
         int responseCode = 0;
+
         try {
             responseCode = sendPost(
-                            "user[name]=" + user +
-                            "&user[password]=" + password
+                            "user[email]=" + user +
+                            "&user[password]=" + password ,
+                            _URL_AUTH
             );
         }
         catch (Exception e1){
+            System.out.println("Error");
             return false;
+
         }
+
         if (responseCode == 200)
             return true;
         return false;
@@ -108,11 +101,12 @@ public class API {
         int responseCode = 0;
         try {
             responseCode =sendPost(
-                    "user[name]=" + user +
+                    "user[email]=" + user +
                     "&user[password]=" + password +
-                    "&statistics[score]=" + score +
-                    "&statistics[max_time_heart]=" + timeOfFirstDeath +
-                    "&statistics[max_time_die]=" + timeOfGame
+                    "&statistic[score]=" + score +
+                    "&statistic[max_time_heart]=" + timeOfFirstDeath +
+                    "&statistic[max_time_die]=" + timeOfGame,
+                    _URL_STAT
             );
         }
         catch (Exception e1){

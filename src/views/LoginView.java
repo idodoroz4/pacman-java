@@ -68,9 +68,9 @@ public class LoginView extends JPanel{
 
         ActionListener registerListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                System.out.println("register!");
+
                 try {
-                    dsktp.browse(new URI("http://www.google.com"));
+                    dsktp.browse(new URI("https://guarded-basin-88343.herokuapp.com/users/new"));
                 }
                 catch (Exception e){
                     System.out.println("Error");
@@ -81,9 +81,9 @@ public class LoginView extends JPanel{
 
         ActionListener LeatherBoardsListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                System.out.println("LeatherBoards!");
+
                 try {
-                    dsktp.browse(new URI("http://www.youtube.com"));
+                    dsktp.browse(new URI("https://guarded-basin-88343.herokuapp.com/leader"));
                 }
                 catch (Exception e){
                     System.out.println("Error");
@@ -94,10 +94,10 @@ public class LoginView extends JPanel{
         ActionListener loginListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
 
-                System.out.println("login!");
+
                 _email = userText.getText();
                 _difficultyChosen = getSelectedButtonText(_difficulty);
-                _pass = passwordText.getPassword().toString();
+                _pass = String.valueOf(passwordText.getPassword());
                 boolean answer = db.sendAuthenticationData(_email,_pass);
 
                 if (_email.equals("backdoor") || answer){ // check user and password
@@ -115,7 +115,7 @@ public class LoginView extends JPanel{
 
         ActionListener demoListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                System.out.println("demo!");
+
                 _isDemo = true;
                 frame.setVisible(false);
                 _startGame = true;
