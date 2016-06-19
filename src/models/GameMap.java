@@ -3,7 +3,7 @@ package models;
 import java.awt.Dimension;
 import java.awt.Point;
 
-public class Map {
+public class GameMap {
 
 	private int[][] _map;
 	private MappedObjects[][] _objectsMap;
@@ -13,7 +13,7 @@ public class Map {
 	private int _totalFood;
 	
 
-	protected Map(int[][] map, Point cagePosition, Point pacmanInitialPosition) {
+	protected GameMap(int[][] map, Point cagePosition, Point pacmanInitialPosition) {
 		_map = map;
 		_gameDimension = new Dimension(_map[0].length, _map.length);
 		ghostInitialPosition = cagePosition;
@@ -94,7 +94,7 @@ public class Map {
 		return true;
 	}
 
-	public static Map getMap() {
+	public static GameMap getMap() {
 		int W = 1;
 		int P = 2;
 		int E = 0;
@@ -133,6 +133,6 @@ public class Map {
 				{ W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W },
 				
 		};
-			return new Map(map, new Point(15, 12), new Point(14, 16));
+			return new GameMap(map, new Point(14, 12), new Point(14, 16));
 	}
 }

@@ -7,19 +7,20 @@ import javax.imageio.ImageIO;
 
 import views.utils.Assets;
 
-public abstract class Ghost extends FigureObject {
+public abstract class Ghost extends FigureObject implements IFigureElement {
 	private static final long serialVersionUID = 1991L;
 	BufferedImage _image;
 	private int _color;
 	private int _intervalTime;
 	private long _cageTime;
+	private boolean isOutOfTheCage;
 
-	public Ghost(Map map, int color) {
-		super(map);
+	public Ghost(GameMap gameMap, int color) {
+		super(gameMap);
 		_color = color;
 		setFPS(5);
 		_intervalTime = 5000; // 5 seconds
-
+		isOutOfTheCage = false;
 		startGhost();
 	}
 
@@ -39,12 +40,15 @@ public abstract class Ghost extends FigureObject {
 
 	}
 
+	public void set_isOutOfCage(boolean b){ isOutOfTheCage = b;}
+	public boolean get_isOutOfCage(){ return isOutOfTheCage; }
+
 	@Override
 	public void move() {
 		if (isCageUp())
 			setDirection(Movement.UP);
-
-		if ((isStep() && getDirection() == Movement.NONE)  || isIntersection()) {
+		if (this instanceof WeakGhost)   {
+			if ((isStep() && getDirection() == Movement.NONE) || isIntersection()) {
 
 
 				int rnd = (int) (Math.random() * 4 + 1);
@@ -61,9 +65,13 @@ public abstract class Ghost extends FigureObject {
 					case 4:
 						setDirection(Movement.RIGHT);
 						break;
-			}
+				}
 
+			}
 		}
+
+		if (((getPosition().x == 14) || (getPosition().x == 13)) && (getPosition().y == 10))
+			this.set_isOutOfCage(true);
 
 		super.move();
 	}

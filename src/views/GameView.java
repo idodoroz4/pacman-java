@@ -9,7 +9,7 @@ import java.util.List;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
-import models.Map;
+import models.GameMap;
 import models.Ghost;
 import models.Pacman;
 import models.MappedObjects;
@@ -17,21 +17,21 @@ import models.MappedObjects;
 public class GameView extends JPanel {
 	private static final Dimension BLOCK_SIZE = new Dimension(24,24);
 	private Dimension _gameDimensions;
-	private Map _gameMap;
+	private GameMap _gameGameMap;
 	private Pacman _pacman;
 	private JPanel _mappedObjectPanel;
 	private JPanel _pacmanPanel;
 	private JPanel _monstersPanel;
 	private List<Ghost> _ghosts;
 
-	public GameView(Map map) {
-		setGameMap(map);
+	public GameView(GameMap gameMap) {
+		setGameMap(gameMap);
 		initializeUI();
 	}
 
-	public void newGame(Map map) {
-		setGameMap(map);
-		initializeMap(map);
+	public void newGame(GameMap gameMap) {
+		setGameMap(gameMap);
+		initializeMap(gameMap);
 	}
 
 	public void setPacman(Pacman pacman) {
@@ -50,8 +50,8 @@ public class GameView extends JPanel {
 		_pacman.setBounds(oldPos.x * BLOCK_SIZE.width, oldPos.y * BLOCK_SIZE.height, BLOCK_SIZE.width, BLOCK_SIZE.height);
 	}
 
-	private void initializeMap(Map map) {
-		MappedObjects[][] objectsMap = map.getObjectsMap();
+	private void initializeMap(GameMap gameMap) {
+		MappedObjects[][] objectsMap = gameMap.getObjectsMap();
 		_mappedObjectPanel.removeAll();
 
 		for (int i = 0; i < objectsMap.length; i++) {
@@ -116,8 +116,8 @@ public class GameView extends JPanel {
 	}
 
 
-	private void setGameMap(Map map) {
-		this._gameMap = map;
-		this._gameDimensions = map.getGameDimension();
+	private void setGameMap(GameMap gameMap) {
+		this._gameGameMap = gameMap;
+		this._gameDimensions = gameMap.getGameDimension();
 	}
 }

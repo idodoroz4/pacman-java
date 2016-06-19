@@ -9,11 +9,11 @@ public abstract class FigureObject extends Animation {
 	private Movement _movement = Movement.NONE;
 	private Movement _tempMove = null;
 	private int _speed = 3;
-	private Map _gameMap;
+	protected GameMap _gameGameMap;
 
 
-	public FigureObject(Map collisionMap) {
-		_gameMap = collisionMap;
+	public FigureObject(GameMap collisionGameMap) {
+		_gameGameMap = collisionGameMap;
 	}
 
 
@@ -63,15 +63,15 @@ public abstract class FigureObject extends Animation {
 
     protected boolean isIntersection(){
         //System.out.println(this.getX());
-        //System.out.println(_gameMap.getObjectsMap()[18][6]);
+        //System.out.println(_gameGameMap.getObjectsMap()[18][6]);
         if ((this.getPosition().x == 6) && (this.getPosition().y == 18)) { return true; }
 
-	    if ( (((_gameMap.getObjectsMap()[this.getPosition().y - 1][this.getPosition().x]) == null) ||
-                ((_gameMap.getObjectsMap()[this.getPosition().y - 1][this.getPosition().x]) instanceof Food)) &&
-                (((_gameMap.getObjectsMap()[this.getPosition().y + 1 ][this.getPosition().x]) == null) ||
-                        ((_gameMap.getObjectsMap()[this.getPosition().y + 1][this.getPosition().x]) instanceof Food)) &&
-                (((_gameMap.getObjectsMap()[this.getPosition().y][this.getPosition().x - 1]) == null) ||
-                        ((_gameMap.getObjectsMap()[this.getPosition().y][this.getPosition().x - 1]) instanceof Food)))
+	    if ( (((_gameGameMap.getObjectsMap()[this.getPosition().y - 1][this.getPosition().x]) == null) ||
+                ((_gameGameMap.getObjectsMap()[this.getPosition().y - 1][this.getPosition().x]) instanceof Food)) &&
+                (((_gameGameMap.getObjectsMap()[this.getPosition().y + 1 ][this.getPosition().x]) == null) ||
+                        ((_gameGameMap.getObjectsMap()[this.getPosition().y + 1][this.getPosition().x]) instanceof Food)) &&
+                (((_gameGameMap.getObjectsMap()[this.getPosition().y][this.getPosition().x - 1]) == null) ||
+                        ((_gameGameMap.getObjectsMap()[this.getPosition().y][this.getPosition().x - 1]) instanceof Food)))
             return true;
 
         return false;
@@ -80,7 +80,7 @@ public abstract class FigureObject extends Animation {
     }
 
 	protected boolean isCageUp(){
-        return  (_gameMap.getCollisionMap()[_position.y - 1][_position.x] == -1);
+        return  (_gameGameMap.getCollisionMap()[_position.y - 1][_position.x] == -1);
 
 
     }
@@ -94,7 +94,7 @@ public abstract class FigureObject extends Animation {
 	}
 
 	public void setPosition(int x, int y) {
-		if (_gameMap.canMove(this, x, y)) {
+		if (_gameGameMap.canMove(this, x, y)) {
 			_position.move(x, y);
 		}
 		
@@ -130,8 +130,8 @@ public abstract class FigureObject extends Animation {
 		return _speed;
 	}
 
-	protected Map getCollisionMap() {
-		return _gameMap;
+	protected GameMap getCollisionMap() {
+		return _gameGameMap;
 	}
 
 	public void setSpeed(int speed) {

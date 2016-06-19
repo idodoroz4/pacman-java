@@ -1,5 +1,6 @@
 package controller;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -9,6 +10,7 @@ import java.util.List;
 
 import javax.swing.Timer;
 
+import jdk.nashorn.internal.runtime.regexp.JoniRegExp;
 import models.*;
 import models.Food;
 import views.AppWindow;
@@ -21,10 +23,10 @@ public class Controller implements Runnable {
 	private static final int POINT_FOR_FOOD = 1;
 	private Timer _gameTimer;
 	private static final int FPS = 60;
-	private Map _map = Map.getMap();
+	private GameMap _Game_map = GameMap.getMap();
 	private AppWindow _window;
     private AppWindow _loginWindow;
-	private GameView _gameView = new GameView(_map);
+	private GameView _gameView = new GameView(_Game_map);
     private LoginView _loginView;
 	private Pacman _pacman;
 	private int _remainingLives;
@@ -56,6 +58,10 @@ public class Controller implements Runnable {
         startLoginWindow();
 		_isPacmanAI = false;
 
+	}
+
+	public Point getPacmanPos (){
+		return _pacman.getPosition();
 	}
 
     private void startLoginWindow (){
@@ -101,11 +107,13 @@ public class Controller implements Runnable {
 
 		_gameTimer.stop();
 		_remainingLives = PACMAN_LIVES;
-		_map = Map.getMap();
-		_foodRemaining = _map.getTotalFood();
-		_gameView.newGame(_map);
+		_Game_map = GameMap.getMap();
+		_foodRemaining = _Game_map.getTotalFood();
+		_gameView.newGame(_Game_map);
 		_firstDeathTime = 0;
 
+		_pacman = PacmanCreator.createPacman(_Game_map,0, new Point(_Game_map.getPacmanInitialPosition().x,_Game_map.getPacmanInitialPosition().y));
+		_gameView.setPacman(_pacman);
 
 		int num_of_ghosts = 4;
 		if (!_isPacmanAI)
@@ -120,13 +128,13 @@ public class Controller implements Runnable {
 		if (_ghosts.size() == 0) {
 			for (int i = 0; i < num_of_ghosts; i++) {
 
-				RegularGhost w = new RegularGhost(_map, i+1);
+				StrongGhost w = new StrongGhost(_Game_map, i+1);
 				if (i == 0 )
 					w.setSpeed(2);
 				if (i == 1 )
 					w.setSpeed(4);
 
-
+				_pacman.addListener(w);
 				_ghosts.add(w);
 			}
 			_gameView.setMonsters(_ghosts);
@@ -142,7 +150,7 @@ public class Controller implements Runnable {
 	}
 
     public int getScore (){
-        return (_remainingLives + 1) * 20 + (_map.getTotalFood() - _foodRemaining);
+        return (_remainingLives + 1) * 20 + (_Game_map.getTotalFood() - _foodRemaining);
     }
     public long get_firstDeathTime(){
         return _firstDeathTime;
@@ -153,19 +161,21 @@ public class Controller implements Runnable {
 
 	public void restartGame() {
 
-		_pacman = new Pacman(_map);
-		_gameView.setPacman(_pacman);
-		_pacman.setPosition(_map.getPacmanInitialPosition().x, _map.getPacmanInitialPosition().y);
+		_pacman.setPosition(_Game_map.getPacmanInitialPosition().x,_Game_map.getPacmanInitialPosition().y);
 
 		for (Ghost m : _ghosts) {
 
-			m.setPosition(_map.getMonsterInitialPosition().x, _map.getMonsterInitialPosition().y);
+
+			m.setPosition(_Game_map.getMonsterInitialPosition().x, _Game_map.getMonsterInitialPosition().y);
+			m.set_isOutOfCage(false);
 			m.setCageTime();
 		}
 		if (_loginView._isDemo) {
             _pacman.setSpeed(3);
             _pacman.setDirection(Movement.RIGHT);
         }
+
+
 
 		_gameTimer.start();
 	}
@@ -176,8 +186,9 @@ public class Controller implements Runnable {
 		if (_loginView._isDemo) {
 			_pacman.moveRandomly();
 		}
-		else
+		else {
 			_pacman.move();
+		}
 
 
 		for (Ghost m : _ghosts){
@@ -185,6 +196,11 @@ public class Controller implements Runnable {
 
 
 			if (_pacman.getBounds().intersects(m.getBounds())) {
+				if (m.eatendBy(_pacman)){ // true - monster can be eaten by pacman
+					m.setPosition(_Game_map.getMonsterInitialPosition().x, _Game_map.getMonsterInitialPosition().y);
+					continue;
+				}
+
                 if (_remainingLives == PACMAN_LIVES) {
                     _firstDeathTimeEnd = System.currentTimeMillis();
                     _firstDeathTime = (_firstDeathTimeEnd - _firstDeathTimeStart) / 1000;
@@ -219,7 +235,7 @@ public class Controller implements Runnable {
 		}
 
 
-		MappedObjects[][] map = _map.getObjectsMap();
+		MappedObjects[][] map = _Game_map.getObjectsMap();
 		MappedObjects collidableObject = map[_pacman.getPosition().y][_pacman.getPosition().x];
 
 		if (collidableObject != null && collidableObject.isTouching(_pacman)) {
@@ -245,7 +261,7 @@ public class Controller implements Runnable {
 
 	public void eatFood(Pacman pacman, Food food) {
 		food.getParent().remove(food);
-		_map.getObjectsMap()[pacman.getPosition().y][pacman.getPosition().x] = null;
+		_Game_map.getObjectsMap()[pacman.getPosition().y][pacman.getPosition().x] = null;
 		_points += POINT_FOR_FOOD;
 		_foodRemaining--;
 	}
@@ -275,6 +291,7 @@ public class Controller implements Runnable {
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 				_pacman.setDirection(Movement.NONE);
 			}
+			_pacman._firePositionEvent();
 
 
 

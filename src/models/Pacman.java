@@ -1,21 +1,36 @@
 package models;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import views.utils.Assets;
 
-public class Pacman extends FigureObject {
+public class Pacman extends FigureObject implements IFigureElementVisitor{
 	private static final long serialVersionUID = 1992L;
 
+	private List _listeners = new ArrayList();
 	private Movement _currMove = Movement.RIGHT;
 
-
-	public Pacman(Map map) {
-		super(map);
-		setPosition(map.getPacmanInitialPosition().x, map.getPacmanInitialPosition().y);
+	public  Pacman(GameMap gameMap) {
+		super(gameMap);
+		setPosition(gameMap.getPacmanInitialPosition().x, gameMap.getPacmanInitialPosition().y);
 		setDirection(Movement.NONE);
+	}
+
+	public synchronized void addListener (IPositionListener listener){
+		_listeners.add(listener);
+	}
+
+	public synchronized void _firePositionEvent () {
+		PacmanPositionEvent ppe = new PacmanPositionEvent(this,this.getPosition());
+		Iterator listeners = _listeners.iterator();
+		while (listeners.hasNext()){
+			( (IPositionListener) listeners.next()).positionReceived(ppe);
+		}
 	}
 	
 	@Override
@@ -66,8 +81,9 @@ public class Pacman extends FigureObject {
 			break;
 		
 		}
-		
+
 		super.setDirection(movement);
+
 	}
 
 	public void setDefaultIcon() {
@@ -101,5 +117,14 @@ public class Pacman extends FigureObject {
 			}
 		}
 		super.move();
+	}
+
+	@Override
+	public boolean eats (WeakGhost ghost){
+		return false;
+	}
+	@Override
+	public boolean eats (StrongGhost ghost){
+		return false;
 	}
 }
