@@ -38,6 +38,7 @@ public class Controller implements Runnable {
 	private int _foodRemaining;
 	private String _userEmail;
 	private byte[] _userPass;
+	private int _numGhostsEaten;
 
 	private int _difficulty; // 0 - easy , 1 - hard
 	private boolean _isPacmanAI;
@@ -136,6 +137,7 @@ public class Controller implements Runnable {
 		_foodRemaining = _Game_map.getTotalFood();
 		_gameView.newGame(_Game_map);
 		_firstDeathTime = 0;
+		_numGhostsEaten = 0;
 
 		_pacman = PacmanCreator.createPacman(_Game_map,0, new Point(_Game_map.getPacmanInitialPosition().x,_Game_map.getPacmanInitialPosition().y));
 		_gameView.setPacman(_pacman);
@@ -179,7 +181,7 @@ public class Controller implements Runnable {
 	}
 
     public int getScore (){
-        return (_remainingLives + 1) * 20 + (_Game_map.getTotalFood() - _foodRemaining);
+        return (_remainingLives + 1) * 20 + (_Game_map.getTotalFood() - _foodRemaining) + (_numGhostsEaten * 10);
     }
     public long get_firstDeathTime(){
         return _firstDeathTime;
@@ -233,7 +235,7 @@ public class Controller implements Runnable {
 					m.setOldPos(m.getPosition());
 					_gameView.vanishGhost(m);
 					_ghostRevive.restart();
-					//m.setPosition(_Game_map.getMonsterInitialPosition().x, _Game_map.getMonsterInitialPosition().y);
+					_numGhostsEaten++;
 					continue;
 				}
 
