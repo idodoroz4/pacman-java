@@ -6,7 +6,7 @@ package models;
 public class SuperPacman extends Pacman {
 
 
-    public SuperPacman (GameMap gameMap){
+    public SuperPacman(GameMap gameMap){
         super(gameMap);
 
     }

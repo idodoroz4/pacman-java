@@ -1,5 +1,6 @@
 package models;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -14,6 +15,9 @@ public abstract class Ghost extends FigureObject implements IFigureElement {
 	private int _intervalTime;
 	private long _cageTime;
 	private boolean isOutOfTheCage;
+	private Point oldPos;
+	private boolean hasBeenEaten;
+	public long _TimeOfDeath;
 
 	public Ghost(GameMap gameMap, int color) {
 		super(gameMap);
@@ -22,6 +26,10 @@ public abstract class Ghost extends FigureObject implements IFigureElement {
 		_intervalTime = 5000; // 5 seconds
 		isOutOfTheCage = false;
 		startGhost();
+		oldPos = null;
+		hasBeenEaten = false;
+		_TimeOfDeath = 0;
+
 	}
 
 	public void startGhost() {
@@ -85,4 +93,10 @@ public abstract class Ghost extends FigureObject implements IFigureElement {
 				return true;
 		return false;
 	}
+
+	public Point getOldPos () {return oldPos; }
+	public void setOldPos (Point p){ oldPos = p;}
+
+	public boolean get_hasBeenEaten (){ return hasBeenEaten;}
+	public void set_hasBeenEaten (boolean b) { hasBeenEaten = b; }
 }

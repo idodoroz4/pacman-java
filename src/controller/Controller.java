@@ -18,10 +18,13 @@ import views.GameView;
 import views.LoginView;
 
 public class Controller implements Runnable {
-
+	private static final int UPGRADE_TIME = 10;
+	private static final int GHOST_REVIVE = 3;
 	private static final int PACMAN_LIVES = 2;
 	private static final int POINT_FOR_FOOD = 1;
 	private Timer _gameTimer;
+	private Timer _upgradePacman;
+	private Timer _ghostRevive;
 	private static final int FPS = 60;
 	private GameMap _Game_map = GameMap.getMap();
 	private AppWindow _window;
@@ -99,6 +102,28 @@ public class Controller implements Runnable {
             }
         });
 
+		// initialize the special stage timer
+		_upgradePacman = new Timer(UPGRADE_TIME * 1000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_pacman = new Pacman(_Game_map);
+				for (Ghost g :_ghosts){
+					if (g instanceof StrongGhost)
+						_pacman.addListener((StrongGhost)g);
+				}
+				_gameView.setPacman(_pacman);
+				_upgradePacman.stop();
+			}
+		});
+
+		_ghostRevive = new Timer(GHOST_REVIVE * 1000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_gameView.bringBackGhost();
+				_ghostRevive.stop();
+			}
+		});
+
         startNewGame();
         restartGame();
 
@@ -121,21 +146,25 @@ public class Controller implements Runnable {
         else
             _difficulty = 1;
 
-
-
 		if (_difficulty == 0)
 			num_of_ghosts = 2;
 		if (_ghosts.size() == 0) {
 			for (int i = 0; i < num_of_ghosts; i++) {
 
-				StrongGhost w = new StrongGhost(_Game_map, i+1);
-				if (i == 0 )
-					w.setSpeed(2);
-				if (i == 1 )
-					w.setSpeed(4);
+				if (i % 2 == 0) { // create strong ghost
+					StrongGhost s = new StrongGhost(_Game_map, i + 1);
+					_pacman.addListener(s);
+					if (i == 0 )
+						s.setSpeed(2);
+					_ghosts.add(s);
+				}
+				else { // create weak ghost
+					WeakGhost w = new WeakGhost(_Game_map, i + 1);
+					if (i == 1 )
+						w.setSpeed(4);
+					_ghosts.add(w);
+				}
 
-				_pacman.addListener(w);
-				_ghosts.add(w);
 			}
 			_gameView.setMonsters(_ghosts);
 		} else {
@@ -190,14 +219,21 @@ public class Controller implements Runnable {
 			_pacman.move();
 		}
 
-
+		_gameView.bringBackGhost();
 		for (Ghost m : _ghosts){
+			if (m.get_hasBeenEaten())
+				continue;
 			m.move();
 
 
 			if (_pacman.getBounds().intersects(m.getBounds())) {
 				if (m.eatendBy(_pacman)){ // true - monster can be eaten by pacman
-					m.setPosition(_Game_map.getMonsterInitialPosition().x, _Game_map.getMonsterInitialPosition().y);
+					m.set_hasBeenEaten(true);
+					m._TimeOfDeath = System.currentTimeMillis();
+					m.setOldPos(m.getPosition());
+					_gameView.vanishGhost(m);
+					_ghostRevive.restart();
+					//m.setPosition(_Game_map.getMonsterInitialPosition().x, _Game_map.getMonsterInitialPosition().y);
 					continue;
 				}
 
@@ -264,6 +300,18 @@ public class Controller implements Runnable {
 		_Game_map.getObjectsMap()[pacman.getPosition().y][pacman.getPosition().x] = null;
 		_points += POINT_FOR_FOOD;
 		_foodRemaining--;
+		switch (food.getFoodType()){
+			case 1: //Mighty food
+				_pacman = PacmanCreator.createPacman(_Game_map,1, new Point(pacman.getPosition().x,pacman.getPosition().y));
+				_gameView.switchPacman(_pacman);
+				_upgradePacman.restart();
+				break;
+			case 2: //Super food
+				_pacman = PacmanCreator.createPacman(_Game_map,2, new Point(pacman.getPosition().x,pacman.getPosition().y));
+				_gameView.switchPacman(_pacman);
+				_upgradePacman.restart();
+				break;
+		}
 	}
 
 

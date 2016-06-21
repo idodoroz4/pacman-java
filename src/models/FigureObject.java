@@ -44,7 +44,9 @@ public abstract class FigureObject extends Animation {
 			else
 				setDirection(Movement.NONE);
 		}
-		
+
+		if ((getBounds().x == 1) && (getBounds().y == 26))
+			System.out.println("hello");
 		// set the object to the position
 		setBounds((getBounds().x + dx) % getParent().getSize().width, (getBounds().y + dy) % getParent().getSize().height, BLOCK_SIZE, BLOCK_SIZE);
 

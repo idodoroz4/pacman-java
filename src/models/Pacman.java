@@ -20,9 +20,15 @@ public class Pacman extends FigureObject implements IFigureElementVisitor{
 		setPosition(gameMap.getPacmanInitialPosition().x, gameMap.getPacmanInitialPosition().y);
 		setDirection(Movement.NONE);
 	}
+	public Pacman (GameMap gameMap, Pacman p){
+		super(gameMap);
+	}
 
 	public synchronized void addListener (IPositionListener listener){
 		_listeners.add(listener);
+	}
+	public synchronized void removeListener (IPositionListener listener){
+		_listeners.remove(listener);
 	}
 
 	public synchronized void _firePositionEvent () {

@@ -23,17 +23,24 @@ public class GameMap {
 		int F = 2;
 		int E = 0;
 		int C = -1;
+		int M = 3;  // mighty Food
+		int S = 4;  // Super Food
 
 		for (int i = 0; i < _gameDimension.height; i++) {
 			for (int j = 0; j < _gameDimension.width; j++) {
-				if (_map[i][j] == W) {
 
+				if (_map[i][j] == W) {
 					_objectsMap[i][j] = new Wall();
 				} else if (_map[i][j] == F) {
-
 					_objectsMap[i][j] = new Food();
 					_totalFood++;
-				} else if (_map[i][j] == C) {
+				} else if (_map[i][j] == M) {
+					_objectsMap[i][j] = new MightyFood();
+					_totalFood++;
+				} else if (_map[i][j] == S) {
+					_objectsMap[i][j] = new SuperFood();
+					_totalFood++;
+				}else if (_map[i][j] == C) {
 					_objectsMap[i][j] = new GhostGate();
 				} else {
 					_objectsMap[i][j] = new MappedObjects(null);
@@ -95,15 +102,18 @@ public class GameMap {
 	}
 
 	public static GameMap getMap() {
-		int W = 1;
-		int P = 2;
-		int E = 0;
-		int C = -1;
+		int W = 1;  // Wall
+		int P = 2;  // Regular Food
+		int E = 0;  // Empty road
+		int C = -1; // Cage
+		int M = 3;  // mighty Food
+		int S = 4;  // Super Food
+
 		int[][] map = {
 
 
 				{ W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W },
-				{ W,P,P,P,P,P,P,P,P,P,P,P,P,W,W,P,P,P,P,P,P,P,P,P,P,P,P,W },
+				{ W,S,P,P,P,P,P,P,P,P,P,P,P,W,W,P,P,P,P,P,P,P,P,P,P,P,M,W },
 				{ W,P,W,W,W,W,P,W,W,W,W,W,P,W,W,P,W,W,W,W,W,P,W,W,W,W,P,W },
 				{ W,P,W,W,W,W,P,W,W,W,W,W,P,W,W,P,W,W,W,W,W,P,W,W,W,W,P,W },
 				{ W,P,W,W,W,W,P,W,W,W,W,W,P,W,W,P,W,W,W,W,W,P,W,W,W,W,P,W },
@@ -129,7 +139,7 @@ public class GameMap {
 				{ W,P,P,P,P,P,P,W,W,P,P,P,P,W,W,P,P,P,P,W,W,P,P,P,P,P,P,W },
 				{ W,P,W,W,W,W,W,W,W,W,W,W,P,W,W,P,W,W,W,W,W,W,W,W,W,W,P,W },
 				{ W,P,W,W,W,W,W,W,W,W,W,W,P,W,W,P,W,W,W,W,W,W,W,W,W,W,P,W },
-				{ W,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,W },
+				{ W,M,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,S,W },
 				{ W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W },
 				
 		};

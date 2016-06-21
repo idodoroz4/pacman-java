@@ -4,15 +4,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.StringJoiner;
 
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
-import models.GameMap;
-import models.Ghost;
-import models.Pacman;
-import models.MappedObjects;
+import models.*;
 
 public class GameView extends JPanel {
 	private static final Dimension BLOCK_SIZE = new Dimension(24,24);
@@ -103,6 +102,54 @@ public class GameView extends JPanel {
 		layeredPane.add(_monstersPanel, 0);
 
 		add(layeredPane);
+	}
+
+	public void vanishGhost (Ghost g){
+		if (g != null){
+			g.setOldPos(g.getPosition());
+			_monstersPanel.remove(g);
+			_monstersPanel.repaint();
+		}
+	}
+
+	public void bringBackGhost (){
+		for (Ghost g : _ghosts) {
+			if (g != null) {
+				if (g.get_hasBeenEaten() && (System.currentTimeMillis() - g._TimeOfDeath  >= 3000)) {
+					g.set_hasBeenEaten(false);
+					g.setPosition (g.getOldPos().x,g.getOldPos().y);
+					_monstersPanel.add(g);
+					_monstersPanel.repaint();
+					g.setBounds(g.getPosition().x * BLOCK_SIZE.width, g.getPosition().y * BLOCK_SIZE.height, BLOCK_SIZE.width, BLOCK_SIZE.height);
+				}
+			}
+		}
+	}
+
+	public void switchPacman (Pacman pacman){
+		// set the pacman to its default position
+		Point oldPos = pacman.getPosition();
+
+		if (_pacman != null) {
+			oldPos = _pacman.getPosition();
+			pacman.setDirection(_pacman.getDirection());
+			_pacmanPanel.remove(_pacman);
+			_pacmanPanel.repaint();
+		}
+		/*for (Ghost g :_ghosts){
+			if (g instanceof StrongGhost)
+				_pacman.removeListener((StrongGhost)g);
+		}*/
+
+		_pacman = pacman;
+		_pacmanPanel.add(pacman);
+		_pacman.setBounds(oldPos.x * BLOCK_SIZE.width, oldPos.y * BLOCK_SIZE.height, BLOCK_SIZE.width, BLOCK_SIZE.height);
+
+		for (Ghost g :_ghosts){
+			if (g instanceof StrongGhost)
+				_pacman.addListener((StrongGhost)g);
+		}
+
 	}
 
 
