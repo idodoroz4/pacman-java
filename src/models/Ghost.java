@@ -99,4 +99,22 @@ public abstract class Ghost extends FigureObject implements IFigureElement {
 
 	public boolean get_hasBeenEaten (){ return hasBeenEaten;}
 	public void set_hasBeenEaten (boolean b) { hasBeenEaten = b; }
+
+	public void set_runnig_image (){
+		try {
+			_image = ImageIO.read(Assets.getResource(Ghost.class, ("4.png")));
+			setImage(_image);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void set_regular_image (){
+		try {
+			_image = ImageIO.read(Assets.getResource(Ghost.class, (_color + ".png")));
+			setImage(_image);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

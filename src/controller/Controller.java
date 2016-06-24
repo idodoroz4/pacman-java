@@ -109,6 +109,7 @@ public class Controller implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 				_pacman = new Pacman(_Game_map);
 				for (Ghost g :_ghosts){
+					g.set_regular_image();
 					if (g instanceof StrongGhost)
 						_pacman.addListener((StrongGhost)g);
 				}
@@ -154,14 +155,14 @@ public class Controller implements Runnable {
 			for (int i = 0; i < num_of_ghosts; i++) {
 
 				if (i % 2 == 0) { // create strong ghost
-					StrongGhost s = new StrongGhost(_Game_map, i + 1);
+					StrongGhost s = new StrongGhost(_Game_map, i % 2 + 1);
 					_pacman.addListener(s);
 					if (i == 0 )
 						s.setSpeed(2);
 					_ghosts.add(s);
 				}
 				else { // create weak ghost
-					WeakGhost w = new WeakGhost(_Game_map, i + 1);
+					WeakGhost w = new WeakGhost(_Game_map, i % 2 + 1);
 					if (i == 1 )
 						w.setSpeed(4);
 					_ghosts.add(w);
@@ -192,7 +193,12 @@ public class Controller implements Runnable {
 
 	public void restartGame() {
 
+
+
 		_pacman.setPosition(_Game_map.getPacmanInitialPosition().x,_Game_map.getPacmanInitialPosition().y);
+		_pacman = PacmanCreator.createPacman(_Game_map,0, new Point(_Game_map.getPacmanInitialPosition().x,_Game_map.getPacmanInitialPosition().y));
+		_gameView.switchPacman(_pacman);
+
 
 		for (Ghost m : _ghosts) {
 
@@ -236,6 +242,8 @@ public class Controller implements Runnable {
 					_gameView.vanishGhost(m);
 					_ghostRevive.restart();
 					_numGhostsEaten++;
+					m.set_runnig_image();
+
 					continue;
 				}
 
@@ -304,11 +312,17 @@ public class Controller implements Runnable {
 		_foodRemaining--;
 		switch (food.getFoodType()){
 			case 1: //Mighty food
+				for (Ghost g : _ghosts){
+					if (g instanceof WeakGhost)
+						g.set_runnig_image();
+				}
 				_pacman = PacmanCreator.createPacman(_Game_map,1, new Point(pacman.getPosition().x,pacman.getPosition().y));
 				_gameView.switchPacman(_pacman);
 				_upgradePacman.restart();
 				break;
 			case 2: //Super food
+				for (Ghost g : _ghosts)
+					g.set_runnig_image();
 				_pacman = PacmanCreator.createPacman(_Game_map,2, new Point(pacman.getPosition().x,pacman.getPosition().y));
 				_gameView.switchPacman(_pacman);
 				_upgradePacman.restart();

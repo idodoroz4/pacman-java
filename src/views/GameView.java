@@ -43,6 +43,7 @@ public class GameView extends JPanel {
 			_pacmanPanel.remove(_pacman);
 			_pacmanPanel.repaint();
 		}
+		_monstersPanel.repaint();
 		
 		_pacman = pacman;
 		_pacmanPanel.add(pacman);
@@ -135,7 +136,9 @@ public class GameView extends JPanel {
 			pacman.setDirection(_pacman.getDirection());
 			_pacmanPanel.remove(_pacman);
 			_pacmanPanel.repaint();
+
 		}
+		_monstersPanel.repaint();
 		/*for (Ghost g :_ghosts){
 			if (g instanceof StrongGhost)
 				_pacman.removeListener((StrongGhost)g);
