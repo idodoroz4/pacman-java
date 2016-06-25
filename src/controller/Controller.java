@@ -192,17 +192,14 @@ public class Controller implements Runnable {
     }
 
 	public void restartGame() {
-
-
-
+		
 		_pacman.setPosition(_Game_map.getPacmanInitialPosition().x,_Game_map.getPacmanInitialPosition().y);
 		_pacman = PacmanCreator.createPacman(_Game_map,0, new Point(_Game_map.getPacmanInitialPosition().x,_Game_map.getPacmanInitialPosition().y));
 		_gameView.switchPacman(_pacman);
 
 
 		for (Ghost m : _ghosts) {
-
-
+			m.set_regular_image();
 			m.setPosition(_Game_map.getMonsterInitialPosition().x, _Game_map.getMonsterInitialPosition().y);
 			m.set_isOutOfCage(false);
 			m.setCageTime();
@@ -313,6 +310,7 @@ public class Controller implements Runnable {
 		switch (food.getFoodType()){
 			case 1: //Mighty food
 				for (Ghost g : _ghosts){
+					g.set_regular_image();
 					if (g instanceof WeakGhost)
 						g.set_runnig_image();
 				}
